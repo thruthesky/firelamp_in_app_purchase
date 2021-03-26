@@ -132,6 +132,8 @@ class FirelampInAppPurchase {
                 await connection.consumePurchase(purchaseDetails);
               }
             }
+
+            _verifyPurchase(purchaseDetails);
             if (purchaseDetails.pendingCompletePurchase) {
               await connection.completePurchase(purchaseDetails);
               await _recordSuccess(purchaseDetails);
@@ -189,7 +191,7 @@ class FirelampInAppPurchase {
     print(data);
     // print(jsonEncode(data));
 
-    await Api.instance.recordFailurePurchase(data);
+    await recordFailurePurchase(data);
   }
 
   _recordFailure(PurchaseDetails purchaseDetails) async {
@@ -203,7 +205,7 @@ class FirelampInAppPurchase {
     print('_recordFailure');
     print(data);
 
-    await Api.instance.recordFailurePurchase(data);
+    await recordFailurePurchase(data);
   }
 
   _recordSuccess(PurchaseDetails purchaseDetails) async {
@@ -253,7 +255,7 @@ class FirelampInAppPurchase {
     print('_recordSuccess');
     print(data);
 
-    await Api.instance.recordSuccessPurchase(data);
+    await recordSuccessPurchase(data);
   }
 
   Future buyConsumable(ProductDetails product) async {
@@ -266,9 +268,70 @@ class FirelampInAppPurchase {
     );
   }
 
+  _verifyPurchase(PurchaseDetails purchaseDetails) {
+    ProductDetails productDetails = products[purchaseDetails.productID];
+    final Map<String, dynamic> data = {
+      'user_ID': Api.instance.userIdx,
+      'productID': purchaseDetails.productID,
+      'purchaseID': purchaseDetails.purchaseID,
+      'price': productDetails.price,
+      'title': productDetails.title,
+      'description': productDetails.description,
+      'transactionDate': purchaseDetails.transactionDate,
+      'localVerificationData': purchaseDetails.verificationData.localVerificationData,
+      'serverVerificationData': purchaseDetails.verificationData.serverVerificationData,
+    };
+
+    if (purchaseDetails.verificationData.source == IAPSource.AppStore) {
+      data['platform'] = 'ios';
+    } else if (purchaseDetails.verificationData.source == IAPSource.GooglePlay) {
+      data['platform'] = 'android';
+    }
+
+    // Android has no skPaymentTransaction
+    if (purchaseDetails.skPaymentTransaction != null) {
+      data['applicationUsername'] =
+          purchaseDetails.skPaymentTransaction?.payment?.applicationUsername;
+      data['productIdentifier'] = purchaseDetails.skPaymentTransaction?.payment?.productIdentifier;
+      data['quantity'] = purchaseDetails.skPaymentTransaction?.payment?.quantity;
+      data['transactionIdentifier'] = purchaseDetails.skPaymentTransaction?.transactionIdentifier;
+      data['transactionTimeStamp'] = purchaseDetails.skPaymentTransaction?.transactionTimeStamp;
+    }
+
+    // print('data: ');
+    // print(data);
+    // print(jsonEncode(data));
+    requestVerification(data);
+  }
+
+  Future requestVerification(Map<String, dynamic> data) async {
+    data['route'] = 'purchase.verifyPurchase';
+    try {
+      final re = await Api.instance.request(data);
+      print(re);
+    } catch (e) {
+      print('e: $e');
+    }
+  }
+
+  recordFailurePurchase(Map<String, dynamic> data) {
+    data['route'] = 'purchase.recordFailure';
+    return Api.instance.request(data);
+  }
+
+  recordPendingPurchase(Map<String, dynamic> data) {
+    data['route'] = 'purchase.recordPending';
+    return Api.instance.request(data);
+  }
+
+  recordSuccessPurchase(Map<String, dynamic> data) {
+    data['route'] = 'purchase.recordSuccess';
+    return Api.instance.request(data);
+  }
+
   /// Returns the Collection Query to get the login user's success purchases.
   Future<List<PurchaseHistory>> get getMyPurchases async {
-    final List<dynamic> res = await Api.instance.getMyPurchases();
+    final List<dynamic> res = await Api.instance.request({'route': 'purchase.myPurchase'});
     List<PurchaseHistory> purchaseHistory = [];
     for (int i = 0; i < res.length; i++) {
       purchaseHistory.add(PurchaseHistory.fromJson(res[i]));
