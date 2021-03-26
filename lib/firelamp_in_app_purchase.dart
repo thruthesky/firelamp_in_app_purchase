@@ -10,4 +10,4 @@ import 'package:rxdart/rxdart.dart';
 
 part 'model/in_app_purchase.history.dart';
 
-part 'iap.controller.dart';
+part 'firelamp_in_app_purchase.controller.dart';
