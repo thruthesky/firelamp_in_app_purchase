@@ -61,6 +61,8 @@ class FirelampInAppPurchase {
 
   InAppPurchaseConnection connection = InAppPurchaseConnection.instance;
 
+  ProductDetails lastSelectedProduct;
+
   FirelampInAppPurchase() {
     // final Stream purchaseUpdates = InAppPurchaseConnection.instance.purchaseUpdatedStream;
     // _subscription = purchaseUpdates.listen((purchases) {
@@ -191,6 +193,7 @@ class FirelampInAppPurchase {
   }
 
   Future buyConsumable(ProductDetails product) async {
+    lastSelectedProduct = product;
     PurchaseParam purchaseParam = PurchaseParam(
       productDetails: product,
     );
@@ -201,7 +204,9 @@ class FirelampInAppPurchase {
   }
 
   getData(PurchaseDetails purchaseDetails) {
-    ProductDetails productDetails = products[purchaseDetails.productID];
+    String productId =
+        purchaseDetails?.productID != null ? purchaseDetails?.productID : lastSelectedProduct.id;
+    ProductDetails productDetails = products[productId];
     final Map<String, dynamic> data = {
       'productID': purchaseDetails?.productID,
       'purchaseID': purchaseDetails?.purchaseID,
@@ -213,10 +218,16 @@ class FirelampInAppPurchase {
       'serverVerificationData': purchaseDetails?.verificationData?.serverVerificationData,
     };
 
-    if (purchaseDetails.verificationData.source == IAPSource.AppStore) {
+    if (purchaseDetails?.verificationData?.source == IAPSource.AppStore) {
       data['platform'] = 'ios';
-    } else if (purchaseDetails.verificationData.source == IAPSource.GooglePlay) {
+    } else if (purchaseDetails?.verificationData?.source == IAPSource.GooglePlay) {
       data['platform'] = 'android';
+    } else {
+      if (Platform.isIOS) {
+        data['platform'] = 'ios';
+      } else if (Platform.isAndroid) {
+        data['platform'] = 'android';
+      }
     }
 
     // Android has no skPaymentTransaction
