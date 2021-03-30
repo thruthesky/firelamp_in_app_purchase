@@ -130,7 +130,7 @@ class FirelampInAppPurchase {
             print(purchaseDetails.toString());
 
             /// verify purchase
-            await _verifyPurchase(purchaseDetails);
+            dynamic dataModel = await _verifyPurchase(purchaseDetails);
 
             // for android & consumable product only.
             if (Platform.isAndroid) {
@@ -148,8 +148,10 @@ class FirelampInAppPurchase {
         },
       );
     }, onDone: () {
+      // @todo post an event of 'done'
       print('onDone:');
     }, onError: (error) {
+      // @todo post an event of 'error'
       print('onError: error on listening:');
       print(error);
     });
@@ -208,7 +210,7 @@ class FirelampInAppPurchase {
         purchaseDetails?.productID != null ? purchaseDetails?.productID : lastSelectedProduct.id;
     ProductDetails productDetails = products[productId];
     final Map<String, dynamic> data = {
-      'productID': purchaseDetails?.productID,
+      'productID': productDetails.id,
       'purchaseID': purchaseDetails?.purchaseID,
       'price': productDetails?.price,
       'title': productDetails?.title,
@@ -243,15 +245,16 @@ class FirelampInAppPurchase {
     return data;
   }
 
-  _verifyPurchase(PurchaseDetails purchaseDetails) {
+  Future<dynamic> _verifyPurchase(PurchaseDetails purchaseDetails) {
     return requestVerification(getData(purchaseDetails));
   }
 
-  Future requestVerification(Map<String, dynamic> data) async {
+  Future<dynamic> requestVerification(Map<String, dynamic> data) async {
     data['route'] = 'in-app-purchase.verifyPurchase';
     try {
       final re = await Api.instance.request(data);
       print(re);
+      return re;
     } catch (e) {
       print('e: $e');
     }
