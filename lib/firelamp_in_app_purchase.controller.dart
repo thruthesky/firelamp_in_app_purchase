@@ -61,6 +61,7 @@ class FirelampInAppPurchase {
 
   InAppPurchaseConnection connection = InAppPurchaseConnection.instance;
 
+  @Deprecated('Remove this. Since it may have a wrong value. ie. network latency.')
   ProductDetails lastSelectedProduct;
 
   FirelampInAppPurchase() {
@@ -185,7 +186,7 @@ class FirelampInAppPurchase {
     print('psending data:');
     print(purchaseDetails);
     // print(jsonEncode(data));
-    await recordFailurePurchase(getData(purchaseDetails));
+    await recordPendingPurchase(getData(purchaseDetails));
   }
 
   _recordFailure(PurchaseDetails purchaseDetails) async {
@@ -195,7 +196,7 @@ class FirelampInAppPurchase {
   }
 
   Future buyConsumable(ProductDetails product) async {
-    lastSelectedProduct = product;
+    // lastSelectedProduct = product;
     PurchaseParam purchaseParam = PurchaseParam(
       productDetails: product,
     );
@@ -205,10 +206,28 @@ class FirelampInAppPurchase {
     );
   }
 
+  /// prepare data to save into backend.
+  ///
+  ///
   getData(PurchaseDetails purchaseDetails) {
-    String productId =
-        purchaseDetails?.productID != null ? purchaseDetails?.productID : lastSelectedProduct.id;
+    /// purchaseDetails must not be null.
+    if (purchaseDetails == null) {
+      print('getData: purchaseDetails is null');
+      return null;
+    }
+    String productId = purchaseDetails.productID;
+
+    /// If there is no product by that `productId`,
+    /// This error happens when there is pending & failed purchase. When the app boots, it comes here immediately, but
+    /// products is empty(not loaded) by that time.
+    /// Reproduce: open payment button and close app. run app.
+    if (products[productId] == null) {
+      print('getData: no such product by $productId');
+      return null;
+    }
     ProductDetails productDetails = products[productId];
+
+    /// [productDetails] is null when ther eis pending purchase on booting on iOS.
     final Map<String, dynamic> data = {
       'productID': productDetails.id,
       'purchaseID': purchaseDetails?.purchaseID,
@@ -242,6 +261,8 @@ class FirelampInAppPurchase {
       data['transactionTimeStamp'] = purchaseDetails.skPaymentTransaction?.transactionTimeStamp;
     }
 
+    print('data;');
+    print(data);
     return data;
   }
 
@@ -260,17 +281,19 @@ class FirelampInAppPurchase {
     }
   }
 
-  recordFailurePurchase(Map<String, dynamic> data) {
+  Future recordFailurePurchase(Map<String, dynamic> data) {
+    if (data == null) throw 'data is null';
     data['route'] = 'in-app-purchase.recordFailure';
     return Api.instance.request(data);
   }
 
-  recordPendingPurchase(Map<String, dynamic> data) {
+  Future recordPendingPurchase(Map<String, dynamic> data) {
+    if (data == null) throw 'data is null';
     data['route'] = 'in-app-purchase.recordPending';
     return Api.instance.request(data);
   }
 
-  recordSuccessPurchase(Map<String, dynamic> data) {
+  Future recordSuccessPurchase(Map<String, dynamic> data) {
     data['route'] = 'in-app-purchase.recordSuccess';
     return Api.instance.request(data);
   }
