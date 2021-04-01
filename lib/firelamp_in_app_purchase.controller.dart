@@ -256,15 +256,15 @@ class FirelampInAppPurchase {
     // Android has no skPaymentTransaction
     if (purchaseDetails.skPaymentTransaction != null) {
       data['applicationUsername'] =
-          purchaseDetails.skPaymentTransaction?.payment?.applicationUsername;
+          purchaseDetails.skPaymentTransaction?.payment?.applicationUsername ?? '';
       data['productIdentifier'] = purchaseDetails.skPaymentTransaction?.payment?.productIdentifier;
       data['quantity'] = purchaseDetails.skPaymentTransaction?.payment?.quantity;
       data['transactionIdentifier'] = purchaseDetails.skPaymentTransaction?.transactionIdentifier;
       data['transactionTimeStamp'] = purchaseDetails.skPaymentTransaction?.transactionTimeStamp;
     }
 
-    print('data;');
-    print(data);
+    // print('data;');
+    // print(data);
     return data;
   }
 
