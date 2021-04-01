@@ -64,6 +64,8 @@ class FirelampInAppPurchase {
   @Deprecated('Remove this. Since it may have a wrong value. ie. network latency.')
   ProductDetails lastSelectedProduct;
 
+  List<PurchaseHistory> purchaseHistory = [];
+
   FirelampInAppPurchase() {
     // final Stream purchaseUpdates = InAppPurchaseConnection.instance.purchaseUpdatedStream;
     // _subscription = purchaseUpdates.listen((purchases) {
@@ -298,10 +300,10 @@ class FirelampInAppPurchase {
     return Api.instance.request(data);
   }
 
-  /// Returns the Collection Query to get the login user's success purchases.
+  /// Get the login user's success purchases.
   Future<List<PurchaseHistory>> get getMyPurchases async {
     final List<dynamic> res = await Api.instance.request({'route': 'in-app-purchase.myPurchase'});
-    List<PurchaseHistory> purchaseHistory = [];
+    purchaseHistory.clear();
     for (int i = 0; i < res.length; i++) {
       purchaseHistory.add(PurchaseHistory.fromJson(res[i]));
     }
