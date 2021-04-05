@@ -173,7 +173,7 @@ class FirelampInAppPurchase {
 
       response.productDetails.forEach((product) => products[product.id] = product);
 
-      print('iap products: $products');
+      // print('iap products: $products');
 
       productReady.add(products);
     } else {
