@@ -57,8 +57,6 @@ class FirelampInAppPurchase {
   // ignore: close_sinks
   PublishSubject<PurchaseDetails> success = PublishSubject<PurchaseDetails>();
 
-  StreamSubscription<List<PurchaseDetails>> _subscription;
-
   InAppPurchaseConnection connection = InAppPurchaseConnection.instance;
 
   @Deprecated('Remove this. Since it may have a wrong value. ie. network latency.')
@@ -133,7 +131,7 @@ class FirelampInAppPurchase {
             print(purchaseDetails.toString());
 
             /// verify purchase
-            dynamic dataModel = await _verifyPurchase(purchaseDetails);
+            await _verifyPurchase(purchaseDetails);
 
             // for android & consumable product only.
             if (Platform.isAndroid) {

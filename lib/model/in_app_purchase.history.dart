@@ -19,6 +19,7 @@ class PurchaseHistory {
     this.transactionTimeStamp,
     this.localVerificationData,
     this.serverVerificationData,
+    // ignore: non_constant_identifier_names
     this.localVerificationData_packageName,
     this.createdAt,
     this.updatedAt,
@@ -41,6 +42,7 @@ class PurchaseHistory {
   String transactionTimeStamp;
   String localVerificationData;
   String serverVerificationData;
+  // ignore: non_constant_identifier_names
   String localVerificationData_packageName;
   String createdAt;
   String updatedAt;
