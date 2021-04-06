@@ -158,6 +158,7 @@ class FirelampInAppPurchase {
       // @todo post an event of 'error'
       print('onError: error on listening:');
       print(error);
+      error.add(error);
     });
   }
 
