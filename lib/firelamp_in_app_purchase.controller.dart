@@ -18,7 +18,10 @@ class FirelampInAppPurchase {
 
   Map<String, ProductDetails> products = {};
   List<String> missingIds = [];
-  Set<String> _productIds = {};
+
+  /// The [productIds] is the product id to use for in app purchase.
+  /// Payable items will be listed in the order of this list.
+  Set<String> productIds = {};
 
   /// [productReady] is being fired after it got product list from the server.
   /// The app can display product after this event.
@@ -81,7 +84,7 @@ class FirelampInAppPurchase {
     bool autoConsume = true,
   }) {
     // print('Payment::init');
-    this._productIds = productIds;
+    this.productIds = productIds;
     this.consumableIds = consumableIds;
     this.autoConsume = autoConsume;
     _initIncomingPurchaseStream();
@@ -162,7 +165,7 @@ class FirelampInAppPurchase {
     final bool available = await connection.isAvailable();
 
     if (available) {
-      ProductDetailsResponse response = await connection.queryProductDetails(_productIds);
+      ProductDetailsResponse response = await connection.queryProductDetails(productIds);
 
       /// Check if any of given product id(s) are missing.
       if (response.notFoundIDs.isNotEmpty) {
@@ -271,6 +274,7 @@ class FirelampInAppPurchase {
   }
 
   Future<dynamic> requestVerification(Map<String, dynamic> data) async {
+    if (data == null) data = {};
     data['route'] = 'in-app-purchase.verifyPurchase';
     try {
       final re = await Api.instance.request(data);
