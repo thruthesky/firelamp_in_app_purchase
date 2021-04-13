@@ -304,7 +304,7 @@ class FirelampInAppPurchase {
   }
 
   /// Get the login user's success purchases.
-  Future<List<PurchaseHistory>> get getMyPurchases async {
+  Future<List<PurchaseHistory>> getMyPurchases() async {
     final List<dynamic> res = await Api.instance.request({'route': 'in-app-purchase.myPurchase'});
     purchaseHistory.clear();
     for (int i = 0; i < res.length; i++) {
