@@ -279,7 +279,7 @@ class FirelampInAppPurchase {
     data['route'] = 'in-app-purchase.verifyPurchase';
     try {
       final re = await Api.instance.request(data);
-      print(re);
+      // print(re);
       return re;
     } catch (e) {
       print('e: $e');
