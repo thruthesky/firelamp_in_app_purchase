@@ -196,7 +196,11 @@ class FirelampInAppPurchase {
   _recordFailure(PurchaseDetails purchaseDetails) async {
     print('_recordFailure');
     print(purchaseDetails);
-    await recordFailurePurchase(getData(purchaseDetails));
+    try {
+      await recordFailurePurchase(getData(purchaseDetails));
+    } catch (e) {
+      // print(e); // "data is null" the user must have cancel the purchase information screen
+    }
   }
 
   Future buyConsumable(ProductDetails product) async {
