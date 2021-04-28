@@ -127,7 +127,7 @@ class FirelampInAppPurchase {
             error.add(purchaseDetails);
             _recordFailure(purchaseDetails);
             if (Platform.isIOS) {
-              connection.completePurchase(purchaseDetails);
+              await connection.completePurchase(purchaseDetails);
             }
           } else if (purchaseDetails.status == PurchaseStatus.purchased) {
             print('=> purchased on purchaseUpdatedStream');
@@ -145,7 +145,6 @@ class FirelampInAppPurchase {
 
             if (purchaseDetails.pendingCompletePurchase) {
               await connection.completePurchase(purchaseDetails);
-              // await _recordSuccess(purchaseDetails);
               success.add(purchaseDetails);
             }
           }
@@ -261,8 +260,7 @@ class FirelampInAppPurchase {
 
     // Android has no skPaymentTransaction
     if (purchaseDetails.skPaymentTransaction != null) {
-      data['applicationUsername'] =
-          purchaseDetails.skPaymentTransaction?.payment?.applicationUsername ?? '';
+      data['applicationUsername'] = purchaseDetails.skPaymentTransaction?.payment?.applicationUsername ?? '';
       data['productIdentifier'] = purchaseDetails.skPaymentTransaction?.payment?.productIdentifier;
       data['quantity'] = purchaseDetails.skPaymentTransaction?.payment?.quantity;
       data['transactionIdentifier'] = purchaseDetails.skPaymentTransaction?.transactionIdentifier;
