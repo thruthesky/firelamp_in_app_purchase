@@ -186,7 +186,7 @@ class FirelampInAppPurchase {
     if (Platform.isIOS && purchaseDetails?.verificationData == null) {
       // todo On iOS, this may be null. Call [InAppPurchaseConnection.refreshPurchaseVerificationData] to get a new [PurchaseVerificationData] object for further validation.
     }
-    print('psending data:');
+    print('psending data: ${purchaseDetails.productID}');
     print(purchaseDetails);
     // print(jsonEncode(data));
     await recordPendingPurchase(getData(purchaseDetails));
